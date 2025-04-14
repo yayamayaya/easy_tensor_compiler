@@ -2,21 +2,14 @@
 #include "tensor_compiler.hpp"
 #include "logging.hpp"
 
-int main(int argc, char const *argv[])
+int main()
 {
     logger::logger_init("./compiler.log");
 
-    tensor data{2, 4, 3, 3};
+    tensor data({2, 4, 3, 3, 1, 5, 1, 1, 1, 1, 1, 1});
+    data.set_tensor_size(2, 1, 2, 3);
 
     _LOG << "Hello log!" << END_;
-
-    std::vector<number_t> vec = {};
-    for (int i = 0; i < 2*4*3*3 ; i++)
-    {
-        vec.push_back(i);
-    }
-    
-    data = vec;
 
     std::cout << "Dumping tensor:" <<  data << std::endl;
 
