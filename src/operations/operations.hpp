@@ -4,24 +4,26 @@
 #include "tensor.hpp"
 #include <memory>
 
-class node
+class node_interface
 {
 public:
-    virtual ~node() {};
+    virtual ~node_interface() {};
 
     virtual tensor evaluate() const =0;  
 };
 
-class operation: public node
-{
-public:
-    virtual ~operation() {};
+// class operation_interface: public node_interface
+// {
+// public:
+//     virtual ~operation_interface() {};
 
-    virtual void set_args(const std::vector<node *> &args) = 0;
-    virtual const std::vector<node *> &get_args()    const = 0;
-};
 
-class input_data: public node
+
+//     // virtual void set_args(const std::vector<node_interface *> &args) = 0;
+//     // virtual const std::vector<node_interface *> &get_args()    const = 0;
+// };
+
+class input_data: public node_interface
 {
 private:
     tensor node_data;
@@ -29,39 +31,25 @@ private:
 public:
     input_data(const tensor &t): node_data(t) {};
 
-    tensor evaluate() const override
-    {
-        return node_data;
-    }
+    tensor evaluate() const override { return node_data; }
 };
 
-class bin_operation: public operation
+class bin_operation: public node_interface
 {
     // std::vector<Inode *> args;
-
-    tensor lhs;
-
-    tensor rhs;
-
 public:
-    // void bin_operation::set_args(const std::vector<Inode *> &args) override;
 
-    tensor get_lhs() const
-    {
-        return lhs;
-    }
+    std::shared_ptr<node_interface> lhs;
+    const tensor&                   rhs;
 
-    tensor get_rhs() const
-    {
-        return rhs;
-    }
 
-    /*const std::vector<Inode *> &get_args() const override
-    {
-        return args;
-    }*/
+    bin_operation() =delete;
 
-    bin_operation(const std::shared_ptr<node> lhs_val, const tensor &rhs_val): lhs(lhs_val->evaluate()), rhs(rhs_val) {};  
+    bin_operation(std::shared_ptr<node_interface> lhs_val, const tensor &rhs_val): lhs(lhs_val), rhs(rhs_val) {};  
+
+    // void bin_operation::set_args(const std::vector<node_interface *> &args) override;
+
+    // const std::vector<node_interface *> &get_args() const override { return {lhs.get(), rhs}; }
 };
 
 class scalar_add_op: public bin_operation {tensor evaluate() const override;};
@@ -74,13 +62,14 @@ class matrix_mul_op: public bin_operation {tensor evaluate() const override;};
 
 class mat_convol_op: public bin_operation {tensor evaluate() const override;};
 
-class un_operation:  public operation
+class un_operation:  public node_interface
 {
 public:
-    un_operation(const std::shared_ptr<node> arg);
+    un_operation(const std::shared_ptr<node_interface> arg);
 };
 
-class relu_op:    public node {};
-class softmax_op: public node {};
+class relu_op:    public node_interface {};
+
+class softmax_op: public node_interface {};
 
 #endif

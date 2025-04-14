@@ -1,14 +1,9 @@
 #include "operations.hpp"
 
-/*void bin_operation::set_args(const std::vector<Inode *> &args)
+tensor 
+scalar_add_op::evaluate() const
 {
-    arguments = args;
-}*/
+    tensor left_operand = lhs->evaluate();
 
-// bin_operation(const std::shared_ptr<Inode> lhs, const tensor &rhs);
-
-tensor scalar_add_op::evaluate() const
-{
-    return get_lhs() + get_rhs();
+    return left_operand + rhs;
 }
-
