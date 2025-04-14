@@ -8,16 +8,39 @@ using number_t = int;
 
 using index_t  = long unsigned int;
 
+class scalar_add_op;
+
+class unary_operation;
+
+struct tensor_dim
+{
+    size_t N;
+    size_t C;
+    size_t H;
+    size_t W;
+
+    tensor_dim(): N(0), C(0), H(0), W(0) {};
+
+    tensor_dim(const size_t Nv, const size_t Cv, const size_t Hv, const size_t Wv): N(Nv), C(Cv), H(Hv), W(Wv) {}; 
+
+    bool operator !=(const tensor_dim& r_op) const;
+
+    bool operator ==(const tensor_dim& r_op) const;
+};
+
 class tensor
 {
 public:
 
-    //Create class with n data batches, c matrixes in each batch, each matrix is h x w
-    tensor(const size_t n, const size_t c, const size_t h, const size_t w): data(), N(n), C(c), H(h), W(w) {};
+    //Create tensor with data
+    tensor(std::vector<number_t> numbers): data(numbers), size() {};
 
     tensor() =delete;
 
-    size_t get_tensor_size() const;
+    ~tensor() {};
+
+    //set tensor size with n data batches, c matrixes in each batch, each matrix is h x w
+    void set_tensor_size(const size_t N, const size_t C, const size_t H, const size_t W);
 
     //Take a tensor value at index
     number_t & operator ()(const size_t n, const size_t c, const size_t h, const size_t w);
@@ -25,13 +48,9 @@ public:
     //Take a tensor value at index
     number_t operator ()(const size_t n, const size_t c, const size_t h, const size_t w) const;
 
-    //Assign data to tensor
-    const tensor & operator =(std::vector<number_t> vec);
-
     //Print tensor to stream
     friend std::ostream & operator <<(std::ostream & stream, const tensor &t);
 
-//Перенести операторы в классы операций
     tensor operator +(const tensor& rhs)  const;  
 
     tensor operator -(const tensor& rhs)  const;
@@ -40,24 +59,17 @@ public:
 
     tensor operator *(const tensor& rhs)  const;
 
-    ~tensor() {};
+    bool   operator ==(const tensor& rhs) const;
     
 private:
     
     std::vector<number_t> data;
 
-    size_t N;
-    size_t C;
-    size_t H;
-    size_t W;
+    tensor_dim size;
 
-//Перенести операции в классы операций
-    tensor make_operation(const size_t N, const size_t C, const size_t H, const size_t W, const tensor &r_operand, \
-            number_t(op(const number_t num1, const number_t num2))) const;
+    tensor_dim get_size() const;
 
-    static number_t sum_op(const number_t num1, const number_t num2);
-
-    static number_t sub_op(const number_t num1, const number_t num2);
+    void set_tensor_size(const tensor_dim dim) { size = dim; };
 };
 
 
