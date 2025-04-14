@@ -14,11 +14,18 @@ add_definitions(
     -fstrict-overflow -flto-odr-type-merging -fno-omit-frame-pointer -Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla
 )
 
-#add_executable(test main.cpp)
-
-#target_link_libraries(test logging tensor_compiler)
 add_subdirectory(logging_lib)
 add_subdirectory(src)
+
+add_executable(test main.cpp)
+
+target_link_libraries(test logging tensor_compiler)
+
+target_include_directories(
+    test
+    PRIVATE
+    ./src/
+)
 
 option(COMPILE_TESTS "tests compiling" ON)
 
