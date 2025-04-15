@@ -2,15 +2,15 @@
 #define TENSOR_CLASS_HEADER
 
 #include <vector>
-#include "logging.hpp"
+#include <ostream>
 
-using number_t = int;
+using number_t = double;
 
 using index_t  = long unsigned int;
 
-class scalar_add_op;
+class relu_op;
 
-class unary_operation;
+class softmax_op;
 
 struct tensor_dim
 {
@@ -51,6 +51,7 @@ public:
     //Print tensor to stream
     friend std::ostream & operator <<(std::ostream & stream, const tensor &t);
 
+    //Arithmetic operations with tensors
     tensor operator +(const tensor& rhs)  const;  
 
     tensor operator -(const tensor& rhs)  const;
@@ -58,6 +59,12 @@ public:
     tensor operator *(const number_t num) const;
 
     tensor operator *(const tensor& rhs)  const;
+
+    tensor operator /(const tensor& rhs)  const;
+
+    friend relu_op;
+
+    friend softmax_op;
 
     bool   operator ==(const tensor& rhs) const;
     
@@ -67,9 +74,11 @@ private:
 
     tensor_dim size;
 
-    tensor_dim get_size() const;
+    tensor_dim get_size()  const;
 
-    void set_tensor_size(const tensor_dim dim) { size = dim; };
+    bool       is_square() const;
+
+    void set_tensor_size(const tensor_dim dim);
 };
 
 
