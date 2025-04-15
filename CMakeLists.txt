@@ -17,16 +17,6 @@ add_definitions(
 add_subdirectory(logging_lib)
 add_subdirectory(src)
 
-add_executable(test main.cpp)
-
-target_link_libraries(test logging tensor_compiler)
-
-target_include_directories(
-    test
-    PRIVATE
-    ./src/
-)
-
 option(COMPILE_TESTS "tests compiling" ON)
 
 if (COMPILE_TESTS)
