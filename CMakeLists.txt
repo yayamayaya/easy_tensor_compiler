@@ -14,7 +14,6 @@ add_definitions(
     -fstrict-overflow -flto-odr-type-merging -fno-omit-frame-pointer -Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla
 )
 
-add_subdirectory(logging_lib)
 add_subdirectory(src)
 
 option(COMPILE_TESTS "tests compiling" ON)
