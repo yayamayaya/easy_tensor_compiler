@@ -77,9 +77,11 @@ private:
 
     tensor_dim get_size()  const;
 
-// #ifdef OPTIMIZED_TENSORS
-    tensor transpose(const tensor& t);
-// #endif
+#define OPTIMIZED_TENSORS
+#ifdef OPTIMIZED_TENSORS
+public:
+    tensor transpose();
+#endif
 
     bool       is_square() const;
 
