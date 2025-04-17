@@ -1,6 +1,5 @@
 #include "tensor.hpp"
 #include <algorithm>
-#include <iostream>
 
 tensor
 tensor::transpose()
@@ -13,8 +12,6 @@ tensor::transpose()
             for (index_t k = 0; k < size.H; k++)
                 for (index_t r = 0; r < size.W; r++)
                     res(i, j, k, r) = (*this)(i, j, r, k);    
-
-    std::cout << "res: " << res << std::endl;
 
     return res;
 }
