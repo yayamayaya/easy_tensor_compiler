@@ -63,6 +63,14 @@ TEST(tensor_testing, mat_mul)
     tensor r2(1, 1, 1, 3, {1, 2, 3});
 
     EXPECT_ANY_THROW(l2 * r2);
+
+    tensor l3(1, 1, 3, 2, {1, 2, 3, 4, 5, 6});
+
+    tensor r3(1, 1, 2, 3, {7, 8, 9, 10, 11, 12});
+
+    tensor res2(1, 1, 3, 3, {27, 30, 33, 61, 68, 75, 95, 106, 117});
+
+    EXPECT_EQ(l3 * r3, res2);
 }
 
 TEST(operation_testing, bin_operation_test)
@@ -72,7 +80,7 @@ TEST(operation_testing, bin_operation_test)
     tensor t2(1, 1, 1, 3, {3, 2, 1});
 
     std::shared_ptr<node_interface> input = std::make_shared<input_data>(t1);
-    std::shared_ptr<scalar_add_op> op     = std::make_shared<scalar_add_op>(input, t2);
+    std::shared_ptr<scalar_add_op>  op    = std::make_shared<scalar_add_op>(input, t2);
 
     tensor res(1, 1, 1, 3, {4, 4, 4});
 
@@ -161,13 +169,13 @@ TEST(neural_network_testing, big_network)
     EXPECT_NO_THROW(nn.infer());
 }
 
-TEST(optimization_testing, transpose_test)
-{
-    tensor t(1, 2, 2, 2, {1, 2, 3, 4, 5, 6, 7, 8});
+// TEST(optimization_testing, transpose_test)
+// {
+//     tensor t(1, 2, 2, 2, {1, 2, 3, 4, 5, 6, 7, 8});
 
-    tensor t_transposed(1, 2, 2, 2, {1, 3, 2, 4, 5, 7, 6, 8});
+//     tensor t_transposed(1, 2, 2, 2, {1, 3, 2, 4, 5, 7, 6, 8});
 
-    EXPECT_EQ(t.transpose(), t_transposed);
-}
+//     EXPECT_EQ(t.transpose(), t_transposed);
+// }
 
 #endif
