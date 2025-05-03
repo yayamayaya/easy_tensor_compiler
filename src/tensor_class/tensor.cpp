@@ -132,6 +132,7 @@ tensor::operator *(const number_t val) const
     return res;
 }
 
+#ifndef OPTIMIZED_OPERATIONS
 tensor
 tensor::operator *(const tensor& rhs)  const
 {
@@ -161,6 +162,7 @@ tensor::operator *(const tensor& rhs)  const
 
     return res;
 }
+#endif
 
 bool
 tensor::is_square() const

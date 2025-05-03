@@ -12,6 +12,8 @@ class relu_op;
 
 class softmax_op;
 
+class bench;
+
 struct tensor_dim
 {
     size_t N;
@@ -24,7 +26,7 @@ struct tensor_dim
     tensor_dim(const size_t Nv, const size_t Cv, const size_t Hv, const size_t Wv): N(Nv), C(Cv), H(Hv), W(Wv) {}; 
 
     bool operator !=(const tensor_dim& r_op) const;
-
+    
     bool operator ==(const tensor_dim& r_op) const;
 };
 
@@ -35,8 +37,6 @@ public:
     //Create tensor with data and given size
     tensor(const size_t N, const size_t C, const size_t H, const size_t W,\
             std::vector<number_t> numbers): data(numbers), size(N, C, H, W) {};
-
-    tensor() =delete;
 
     ~tensor() {};
 
@@ -77,13 +77,33 @@ private:
 
     tensor_dim get_size()  const;
 
-#define OPTIMIZED_TENSORS
-#ifdef OPTIMIZED_TENSORS
-public:
-    tensor transpose();
+#ifdef OPTIMIZED_OPERATIONS
+
+    tensor transpose() const;
+
+    static constexpr index_t tile_size = 64;
+
+    tensor simple_mul        (const tensor& rhs) const;
+
+    tensor cache_friendly_mul(const tensor& rhs) const;
+
+    tensor tiling_mul        (const tensor& rhs) const;
+
+    
+    // friend void simple_mult_bench        (const tensor& lhs, const tensor& rhs);
+    
+    // friend void cache_friendly_mult_bench(const tensor& lhs, const tensor& rhs);
+    
+    // friend void tiling_mult_bench        (const tensor& lhs, const tensor& rhs);
+    
+    // friend void optimized_mult_bench     (const tensor& lhs, const tensor& rhs);
 #endif
 
+    friend bench;
+    
     bool       is_square() const;
+
+    tensor(): data(), size() {};
 
     tensor(std::vector<number_t> numbers): data(numbers), size() {};
 
