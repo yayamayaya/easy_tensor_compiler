@@ -2,30 +2,23 @@
 #include <random>
 #include "tensor.hpp"
 
-void bench::generate_two_tensors()
+void bench::generate_two_tensors(const size_t size)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
     
-    std::uniform_int_distribution<size_t>  size(1, tensor_dim_max_size);
     std::uniform_real_distribution<double> val((-1) * tensor_max_value, tensor_max_value);
     
-    size_t N    = size(gen);
-    size_t C    = size(gen);
-    size_t H1   = size(gen);
-    size_t W1H2 = size(gen);
-    size_t W2   = size(gen);
-    
     std::vector<number_t> data1 = {};
-    for (index_t i = 0; i < N*C*H1*W1H2; i++)
+    for (index_t i = 0; i < size * size; i++)
     data1.push_back(val(gen));
     
     std::vector<number_t> data2 = {};
-    for (index_t i = 0; i < N*C*W1H2*W2; i++)
+    for (index_t i = 0; i < size * size; i++)
     data2.push_back(val(gen));
     
-    lhs = {N, C, H1, W1H2, data1};
-    rhs = {N, C, W1H2, W2, data2};    
+    lhs = {1, 1, size, size, data1};
+    rhs = {1, 1, size, size, data2};    
 }
 
 void bench::simple_mult_bench(benchmark::State& state)
@@ -54,12 +47,15 @@ BENCHMARK(bench::tiling_mult_bench);
 
 void bench::optimized_mult_bench(benchmark::State& state)
 {
-    for (auto _ : state);
+    for (auto _ : state)
+        lhs * rhs;
 }
+
+BENCHMARK(bench::optimized_mult_bench);
 
 int main(int argc, char *argv[])
 {
-    bench::generate_two_tensors();
+    bench::generate_two_tensors(200);
 
     benchmark::Initialize(&argc, argv);
 
