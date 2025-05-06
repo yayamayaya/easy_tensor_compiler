@@ -173,3 +173,34 @@ number_t *tensor::get_padded(const number_t *ptr, const size_t size, const size_
 
     return new_ptr;
 }
+
+// tensor 
+// tensor::operator /(const tensor& rhs) const
+// {
+//     if ((size.N != rhs.size.N) || (size.C != rhs.size.C))
+//         throw std::logic_error("tensor batch number and matrice number doesn't match");
+
+//     if (!is_square() || !rhs.is_square())
+//         throw std::logic_error("tensors are not square matrices for convolution");
+
+//     std::vector<number_t> result;
+
+//     for (index_t i = 0; i < size.N; i++)
+//         for (index_t j = 0; j < size.C; j++)
+//             for (index_t l = 0; l < rhs.size.H; l++)
+//                 for (index_t k = 0; k < rhs.size.W; k++)
+//                 {
+//                     number_t val = 0;
+
+//                     for (index_t r = 0; r < rhs.size.H; r++)
+//                         for (index_t t = 0; t < rhs.size.W; t++)
+//                             val += (*this)(i, j, l + r, k + t) * rhs(i, j, r, t);
+
+//                     result.push_back(val);
+//                 }
+ 
+//     tensor res(result);
+//     res.set_tensor_size(rhs.size);
+
+//     return res;
+// }
