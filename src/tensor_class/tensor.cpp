@@ -156,49 +156,54 @@ tensor::operator *(const tensor& rhs)  const
 
                     new_tensor.push_back(val);
                 }
-    
     tensor res(new_tensor);
     res.set_tensor_size(size.N, size.C, size.H, rhs.size.W);
 
     return res;
 }
+
+#include <iostream>
+
+tensor 
+tensor::operator /(const tensor& rhs) const
+{
+    if (size.C != rhs.size.C)
+        throw std::logic_error("tensor batch sizes doesn't match");
+
+    if (!rhs.is_square())
+        throw std::logic_error("filters are not square matrices for convolution");
+
+    tensor res{};
+    res.set_tensor_size(size.N, rhs.size.N, size.H - rhs.size.H + 1, size.W - rhs.size.W + 1);
+
+    std::vector<number_t> res_data = {};
+
+    for (index_t i = 0; i < res.size.N; i++)
+        for (index_t j = 0; j < res.size.C; j++)
+            for (index_t l = 0; l < res.size.H; l++)
+                for (index_t k = 0; k < res.size.W; k++)
+                {
+                    number_t val = 0;
+
+                    for (index_t ic = 0; ic < size.C; ic++)
+                        for (index_t fh = 0; fh < rhs.size.H; fh++)
+                            for (index_t fw = 0; fw < rhs.size.W; fw++)
+                                val += (*this)(i, ic, fh + l, fw + k) * rhs(j, ic, fh, fw);
+
+                    res_data.push_back(val);                    
+                }
+        
+    res.data = res_data;
+
+    return res;
+}
+
 #endif
 
 bool
 tensor::is_square() const
 {
     return size.W == size.H;
-}
-
-tensor 
-tensor::operator /(const tensor& rhs) const
-{
-    if ((size.N != rhs.size.N) || (size.C != rhs.size.C))
-        throw std::logic_error("tensor batch number and matrice number doesn't match");
-
-    if (!is_square() || !rhs.is_square())
-        throw std::logic_error("tensors are not square matrices for convolution");
-
-    std::vector<number_t> result;
-
-    for (index_t i = 0; i < size.N; i++)
-        for (index_t j = 0; j < size.C; j++)
-            for (index_t l = 0; l < rhs.size.H; l++)
-                for (index_t k = 0; k < rhs.size.W; k++)
-                {
-                    number_t val = 0;
-
-                    for (index_t r = 0; r < rhs.size.H; r++)
-                        for (index_t t = 0; t < rhs.size.W; t++)
-                            val += (*this)(i, j, l + r, k + t) * rhs(i, j, r, t);
-
-                    result.push_back(val);
-                }
- 
-    tensor res(result);
-    res.set_tensor_size(rhs.size);
-
-    return res;
 }
 
 bool
