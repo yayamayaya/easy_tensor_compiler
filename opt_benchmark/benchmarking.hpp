@@ -13,7 +13,7 @@ public:
 
     static constexpr number_t tensor_max_value  = 5000;
 
-    static void generate_two_tensors();
+    static void generate_two_tensors(const size_t size);
 
     static inline tensor lhs;
 
