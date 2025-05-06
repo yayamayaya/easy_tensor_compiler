@@ -169,13 +169,34 @@ TEST(neural_network_testing, big_network)
     EXPECT_NO_THROW(nn.infer());
 }
 
-// TEST(optimization_testing, transpose_test)
-// {
-//     tensor t(1, 2, 2, 2, {1, 2, 3, 4, 5, 6, 7, 8});
+#ifdef OPTIMIZED_OPERATIONS
 
-//     tensor t_transposed(1, 2, 2, 2, {1, 3, 2, 4, 5, 7, 6, 8});
+TEST(optimization_testing, mat_mul_equity)
+{
+    tensor l1(1, 1, 1, 3, {1, 2, 3});
 
-//     EXPECT_EQ(t.transpose(), t_transposed);
-// }
+    tensor r1(1, 1, 3, 1, {4, 5, 6});
 
+    tensor res(1, 1, 1, 1, {32});
+
+    EXPECT_EQ(l1.simple_mul(r1), res);
+
+    EXPECT_EQ(l1.cache_friendly_mul(r1), res);
+
+    EXPECT_EQ(l1.tiling_mul(r1), res);
+
+    EXPECT_EQ(l1 * r1, res);
+}
+
+
+TEST(optimization_testing, transpose_test)
+{
+    tensor t(1, 2, 2, 2, {1, 2, 3, 4, 5, 6, 7, 8});
+
+    tensor t_transposed(1, 2, 2, 2, {1, 3, 2, 4, 5, 7, 6, 8});
+
+    EXPECT_EQ(t.transpose(), t_transposed);
+}
+#endif
+    
 #endif
