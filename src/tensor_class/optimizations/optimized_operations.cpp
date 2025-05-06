@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstring>
 #include <immintrin.h>
 #include <x86intrin.h>
 #include <iostream>
@@ -70,7 +71,7 @@ tensor::cache_friendly_mul(const tensor& rhs) const
                     number_t val = 0;
                     
                     for (index_t r = 0; r < size.W; r++)
-                        val += this->data[] * rhs_transposed(i, j, k, r);
+                        val += (*this)(i, j, l, r) * rhs_transposed(i, j, k, r);
 
                     new_tensor.push_back(val);
                 }
@@ -128,16 +129,47 @@ tensor::operator *(const tensor& rhs) const
             for (index_t l = 0; l < size.H; l++)
                 for (index_t k = 0; k < rhs.size.W; k++)
                 {
-                    number_t val = 0;
+                    index_t start_ind_f = i * size.H * size.C * size.W + j * size.H * size.W + l * size.W;
+                    index_t start_ind_s = i * size.H * size.C * size.W + j * size.H * size.W + k * size.W;
                     
-                    for (index_t r = 0; r < size.W; r++)
-                        val += (*this)(i, j, l, r) * rhs_transposed(i, j, k, r);
-
-                    new_tensor.push_back(val);
+                    new_tensor.push_back(vector_mult_sum(this->data.data() + start_ind_f, \
+                        rhs_transposed.data.data() + start_ind_s, size.W));
                 }
 
     tensor res(new_tensor);
     res.set_tensor_size(size.N, size.C, size.H, rhs.size.W);
 
     return res; 
+}
+
+number_t tensor::vector_mult_sum(const number_t *v1, const number_t *v2, const size_t size)
+{
+    number_t res = 0;
+
+    number_t *f = get_padded(v1, size, VEC_SIZE);
+    number_t *s = get_padded(v2, size, VEC_SIZE);
+
+    for (size_t i = 0; i < size / VEC_SIZE + 1; i++)
+    {
+        __m512d vec1 = _mm512_loadu_pd(f + VEC_SIZE * i);
+        __m512d vec2 = _mm512_loadu_pd(s + VEC_SIZE * i);
+    
+        res += _mm512_reduce_add_pd(_mm512_mul_pd(vec1, vec2));
+    }
+
+    delete [] f;
+    delete [] s;
+
+    return res;
+}
+
+number_t *tensor::get_padded(const number_t *ptr, const size_t size, const size_t divider)
+{
+    size_t new_size = size + divider - size % divider;
+
+    number_t *new_ptr = new number_t [new_size];
+    std::memset(new_ptr, 0, new_size * sizeof(number_t));
+    std::memcpy(new_ptr, ptr, size * sizeof(number_t));
+
+    return new_ptr;
 }

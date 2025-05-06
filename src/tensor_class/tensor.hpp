@@ -8,12 +8,6 @@ using number_t = double;
 
 using index_t  = long unsigned int;
 
-class relu_op;
-
-class softmax_op;
-
-class bench;
-
 struct tensor_dim
 {
     size_t N;
@@ -63,9 +57,9 @@ public:
 
     tensor operator /(const tensor& rhs)  const;
 
-    friend relu_op;
+    friend class relu_op;
 
-    friend softmax_op;
+    friend class softmax_op;
 
     bool   operator ==(const tensor& rhs) const;
     
@@ -89,18 +83,20 @@ private:
 
     tensor tiling_mul        (const tensor& rhs) const;
 
+    static constexpr index_t VEC_SIZE = 8;
+
+    static number_t vector_mult_sum(const number_t *v1, const number_t *v2, const size_t size);
     
-    // friend void simple_mult_bench        (const tensor& lhs, const tensor& rhs);
+    static number_t *get_padded(const number_t *ptr, const size_t size, const size_t divider);
     
-    // friend void cache_friendly_mult_bench(const tensor& lhs, const tensor& rhs);
+    friend class optimization_testing_mat_mul_equity_Test;
+
+    friend class optimization_testing_transpose_test_Test;
     
-    // friend void tiling_mult_bench        (const tensor& lhs, const tensor& rhs);
-    
-    // friend void optimized_mult_bench     (const tensor& lhs, const tensor& rhs);
+    friend class bench;
+
 #endif
 
-    friend bench;
-    
     bool       is_square() const;
 
     tensor(): data(), size() {};
