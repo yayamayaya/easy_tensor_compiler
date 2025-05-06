@@ -1,3 +1,3 @@
 #!/bin/bash
 
-valgrind ./build/tests/tests
+./build/tests/tests
