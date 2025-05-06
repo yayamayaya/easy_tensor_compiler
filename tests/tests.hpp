@@ -101,6 +101,25 @@ TEST(operation_testing, convol_test)
     EXPECT_EQ(op->evaluate(), res);
 }
 
+TEST(operation_testing, convol_test2)
+{
+    std::vector<number_t> l_data = {};
+    for (int i = 1; i <= 32; i++)
+        l_data.push_back(i);
+
+    tensor l = {1, 2, 4, 4, l_data};
+
+    std::vector<number_t> r_data = {};
+    for (int i = 0; i < 32; i++)
+        r_data.push_back(i);
+
+    tensor r = {1, 2, 2, 2, r_data};
+
+    tensor res = {1, 1, 3, 3, {468, 496, 524, 580, 608, 636, 692, 720, 748}};
+
+    EXPECT_EQ(l / r, res);
+}
+
 TEST(operation_testing, relu_test)
 {
     tensor t1(1, 1, 3, 2, {1, 2, -1, 5, -6, -9});
@@ -170,7 +189,6 @@ TEST(neural_network_testing, big_network)
 }
 
 #ifdef OPTIMIZED_OPERATIONS
-
 TEST(optimization_testing, mat_mul_equity)
 {
     tensor l1(1, 1, 1, 3, {1, 2, 3});
