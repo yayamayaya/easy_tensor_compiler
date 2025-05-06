@@ -3,17 +3,22 @@ cmake_minimum_required(VERSION 3.12)
 project(tensor_compiler)
 
 add_definitions(
-    -std=c++17 -Wall -Wextra -Wpedantic -Werror -g
+    -std=c++17 -Wall -Wextra -Wpedantic -Werror -g -mavx512f -march=native
 )
 
-add_definitions(-DOPTIMIZED_OPERATIONS)
 
-# add_compile_options(-fsanitize=address)
-# add_link_options(-fsanitize=address)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 option(COMPILE_TESTS "tests compiling" ON)
-option(COMPILE_BENCHMARK "benchmark compiling" ON)
+option(COMPILE_BENCHMARK "benchmark compiling" OFF)
 option(OPTIMIZED_OPERATIONS "compiling optimizations" ON)
+
+if (OPTIMIZED_OPERATIONS)
+
+    add_definitions(-DOPTIMIZED_OPERATIONS)
+
+endif ()
 
 add_subdirectory(src)
 
@@ -39,4 +44,3 @@ if (COMPILE_BENCHMARK AND OPTIMIZED_OPERATIONS)
     add_subdirectory(opt_benchmark)
 
 endif ()
-
