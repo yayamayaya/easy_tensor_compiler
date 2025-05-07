@@ -83,11 +83,15 @@ private:
 
     tensor tiling_mul        (const tensor& rhs) const;
 
+    tensor transposed_mult   (const tensor& rhs_transposed) const;
+
     static constexpr index_t VEC_SIZE = 8;
 
     static number_t vector_mult_sum(const number_t *v1, const number_t *v2, const size_t size);
     
     static number_t *get_padded(const number_t *ptr, const size_t size, const size_t divider);
+
+    tensor simple_conv (const tensor& rhs) const;
     
     friend class optimization_testing_mat_mul_equity_Test;
 

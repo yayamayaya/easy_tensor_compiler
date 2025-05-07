@@ -109,25 +109,28 @@ tensor::tiling_mul(const tensor& rhs) const
     return res; 
 }
 
-
 //Полностью оптимизоравнное умножение матриц
 tensor
 tensor::operator *(const tensor& rhs) const
 {
-    if ((size.N != rhs.size.N) || (size.C != rhs.size.C))
-    throw std::logic_error("tensor batch number and matrice number doesn't match");
+    return transposed_mult(rhs.transpose());    
+}
 
-    if (size.W != rhs.size.H)
+tensor
+tensor::transposed_mult(const tensor& rhs_transposed) const
+{
+    if ((size.N != rhs_transposed.size.N) || (size.C != rhs_transposed.size.C))
+        throw std::logic_error("tensor batch number and matrice number doesn't match");
+
+    if (size.W != rhs_transposed.size.W)
         throw std::logic_error("tensor sizes are not compatible");
-
-    tensor rhs_transposed = rhs.transpose();
 
     std::vector<number_t> new_tensor;
         
     for (index_t i = 0; i < size.N; i++)
         for (index_t j = 0; j < size.C; j++)
             for (index_t l = 0; l < size.H; l++)
-                for (index_t k = 0; k < rhs.size.W; k++)
+                for (index_t k = 0; k < rhs_transposed.size.H; k++)
                 {
                     index_t start_ind_f = i * size.H * size.C * size.W + j * size.H * size.W + l * size.W;
                     index_t start_ind_s = i * size.H * size.C * size.W + j * size.H * size.W + k * size.W;
@@ -137,7 +140,7 @@ tensor::operator *(const tensor& rhs) const
                 }
 
     tensor res(new_tensor);
-    res.set_tensor_size(size.N, size.C, size.H, rhs.size.W);
+    res.set_tensor_size(size.N, size.C, size.H, rhs_transposed.size.H);
 
     return res; 
 }
@@ -174,33 +177,65 @@ number_t *tensor::get_padded(const number_t *ptr, const size_t size, const size_
     return new_ptr;
 }
 
-// tensor 
-// tensor::operator /(const tensor& rhs) const
-// {
-//     if ((size.N != rhs.size.N) || (size.C != rhs.size.C))
-//         throw std::logic_error("tensor batch number and matrice number doesn't match");
+tensor 
+tensor::simple_conv(const tensor& rhs) const
+{
+    if (size.C != rhs.size.C)
+        throw std::logic_error("tensor batch sizes doesn't match");
 
-//     if (!is_square() || !rhs.is_square())
-//         throw std::logic_error("tensors are not square matrices for convolution");
+    if (!rhs.is_square())
+        throw std::logic_error("filters are not square matrices for convolution");
 
-//     std::vector<number_t> result;
+    tensor res{};
+    res.set_tensor_size(size.N, rhs.size.N, size.H - rhs.size.H + 1, size.W - rhs.size.W + 1);
 
-//     for (index_t i = 0; i < size.N; i++)
-//         for (index_t j = 0; j < size.C; j++)
-//             for (index_t l = 0; l < rhs.size.H; l++)
-//                 for (index_t k = 0; k < rhs.size.W; k++)
-//                 {
-//                     number_t val = 0;
+    std::vector<number_t> res_data = {};
 
-//                     for (index_t r = 0; r < rhs.size.H; r++)
-//                         for (index_t t = 0; t < rhs.size.W; t++)
-//                             val += (*this)(i, j, l + r, k + t) * rhs(i, j, r, t);
+    for (index_t i = 0; i < res.size.N; i++)
+        for (index_t j = 0; j < res.size.C; j++)
+            for (index_t l = 0; l < res.size.H; l++)
+                for (index_t k = 0; k < res.size.W; k++)
+                {
+                    number_t val = 0;
 
-//                     result.push_back(val);
-//                 }
- 
-//     tensor res(result);
-//     res.set_tensor_size(rhs.size);
+                    for (index_t ic = 0; ic < size.C; ic++)
+                        for (index_t fh = 0; fh < rhs.size.H; fh++)
+                            for (index_t fw = 0; fw < rhs.size.W; fw++)
+                                val += (*this)(i, ic, fh + l, fw + k) * rhs(j, ic, fh, fw);
 
-//     return res;
-// }
+                    res_data.push_back(val);                    
+                }
+        
+    res.data = res_data;
+
+    return res;
+}
+
+tensor
+tensor::operator /(const tensor& rhs) const
+{
+    if (size.C != rhs.size.C)
+        throw std::logic_error("tensor batch sizes doesn't match");
+
+    if (!rhs.is_square())
+        throw std::logic_error("filters are not square matrices for convolution");
+        
+    std::vector<number_t> im2col_data = {};
+        
+    index_t Hf = rhs.size.H;
+    index_t Wf = rhs.size.W;
+    index_t Ho = size.H - rhs.size.H + 1;
+    index_t Wo = size.W - rhs.size.W + 1;
+
+    for (index_t i = 0; i < size.N; i++)
+        for (index_t j = 0; j < size.C; j++)
+            for (index_t l = 0; l < Ho; l++)
+                for (index_t k = 0; k < Wo; k++)
+                    for (index_t ker_h = 0; ker_h < Hf; ker_h++)
+                        for (index_t ker_w = 0; ker_w < Wf; ker_w++)
+                            im2col_data.push_back((*this)(i, j, l + ker_h, k + ker_w)); 
+
+    tensor im2col_tensor{1, 1, size.N * Ho * Wo, size.C * Hf * Wf, im2col_data};
+
+    return *this;
+}
