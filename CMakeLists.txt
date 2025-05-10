@@ -7,11 +7,11 @@ add_definitions(
 )
 
 
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
 
 option(COMPILE_TESTS "tests compiling" ON)
-option(COMPILE_BENCHMARK "benchmark compiling" OFF)
+option(COMPILE_BENCHMARK "benchmark compiling" ON)
 option(OPTIMIZED_OPERATIONS "compiling optimizations" ON)
 
 if (OPTIMIZED_OPERATIONS)
