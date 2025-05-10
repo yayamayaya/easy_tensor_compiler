@@ -162,8 +162,6 @@ tensor::operator *(const tensor& rhs)  const
     return res;
 }
 
-#include <iostream>
-
 tensor 
 tensor::operator /(const tensor& rhs) const
 {

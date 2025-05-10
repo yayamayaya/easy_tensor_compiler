@@ -92,6 +92,8 @@ private:
     static number_t *get_padded(const number_t *ptr, const size_t size, const size_t divider);
 
     tensor simple_conv (const tensor& rhs) const;
+
+    tensor im2col(const tensor& rhs) const;
     
     friend class optimization_testing_mat_mul_equity_Test;
 
