@@ -19,6 +19,8 @@ public:
 
     static inline tensor rhs;
 
+    static inline tensor conv_filter;
+
     static void simple_mult_bench(benchmark::State& state);
 
     static void cache_friendly_mult_bench(benchmark::State& state);
@@ -26,6 +28,10 @@ public:
     static void tiling_mult_bench(benchmark::State& state);
     
     static void optimized_mult_bench(benchmark::State& state);
+
+    static void simple_conv_bench(benchmark::State& state);
+
+    static void optimized_conv_bench(benchmark::State& state);
 };
 
 #endif

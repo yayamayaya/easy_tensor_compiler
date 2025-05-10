@@ -1,5 +1,6 @@
 #include "benchmarking.hpp"
 #include <random>
+#include <iostream>
 #include "tensor.hpp"
 
 void bench::generate_two_tensors(const size_t size)
@@ -16,9 +17,14 @@ void bench::generate_two_tensors(const size_t size)
     std::vector<number_t> data2 = {};
     for (index_t i = 0; i < size * size; i++)
     data2.push_back(val(gen));
+
+    std::vector<number_t> data3 = {};
+    for (index_t i = 0; i < size * size / 4; i++)
+    data3.push_back(val(gen));
     
     lhs = {1, 1, size, size, data1};
     rhs = {1, 1, size, size, data2};    
+    conv_filter = {1, 1, size / 2, size / 2, data3};
 }
 
 void bench::simple_mult_bench(benchmark::State& state)
@@ -53,9 +59,31 @@ void bench::optimized_mult_bench(benchmark::State& state)
 
 BENCHMARK(bench::optimized_mult_bench);
 
+void bench::simple_conv_bench(benchmark::State& state)
+{
+    for (auto _ : state)
+        lhs.simple_conv(conv_filter);
+}
+
+BENCHMARK(bench::simple_conv_bench);
+
+void bench::optimized_conv_bench(benchmark::State& state)
+{
+    for (auto _ : state)
+        lhs / conv_filter;
+}
+
+BENCHMARK(bench::optimized_conv_bench);
+
 int main(int argc, char *argv[])
 {
-    bench::generate_two_tensors(200);
+    if (argc != 2)
+    {
+        std::cout << "> Please, input testing matrix size\n";
+        return 1;
+    }
+
+    bench::generate_two_tensors(atoi(argv[1]));
 
     benchmark::Initialize(&argc, argv);
 
