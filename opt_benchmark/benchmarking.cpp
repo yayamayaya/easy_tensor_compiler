@@ -19,7 +19,7 @@ void bench::generate_two_tensors(const size_t size)
     data2.push_back(val(gen));
 
     std::vector<number_t> data3 = {};
-    for (index_t i = 0; i < size * size / 4; i++)
+    for (index_t i = 0; i < (size / 2) * (size / 2); i++)
     data3.push_back(val(gen));
     
     lhs = {1, 1, size, size, data1};
@@ -33,7 +33,7 @@ void bench::simple_mult_bench(benchmark::State& state)
         lhs.simple_mul(rhs);
 }
 
-BENCHMARK(bench::simple_mult_bench);
+BENCHMARK(bench::simple_mult_bench)->Unit(benchmark::kMillisecond);
 
 void bench::cache_friendly_mult_bench(benchmark::State& state)
 {
@@ -41,7 +41,7 @@ void bench::cache_friendly_mult_bench(benchmark::State& state)
         lhs.cache_friendly_mul(rhs);
 }
 
-BENCHMARK(bench::cache_friendly_mult_bench);
+BENCHMARK(bench::cache_friendly_mult_bench)->Unit(benchmark::kMillisecond);
 
 void bench::tiling_mult_bench(benchmark::State& state)
 {
@@ -49,7 +49,7 @@ void bench::tiling_mult_bench(benchmark::State& state)
         lhs.tiling_mul(rhs);
 }
 
-BENCHMARK(bench::tiling_mult_bench);
+BENCHMARK(bench::tiling_mult_bench)->Unit(benchmark::kMillisecond);
 
 void bench::optimized_mult_bench(benchmark::State& state)
 {
@@ -57,7 +57,7 @@ void bench::optimized_mult_bench(benchmark::State& state)
         lhs * rhs;
 }
 
-BENCHMARK(bench::optimized_mult_bench);
+BENCHMARK(bench::optimized_mult_bench)->Unit(benchmark::kMillisecond);
 
 void bench::simple_conv_bench(benchmark::State& state)
 {
@@ -65,7 +65,7 @@ void bench::simple_conv_bench(benchmark::State& state)
         lhs.simple_conv(conv_filter);
 }
 
-BENCHMARK(bench::simple_conv_bench);
+BENCHMARK(bench::simple_conv_bench)->Unit(benchmark::kMillisecond);
 
 void bench::optimized_conv_bench(benchmark::State& state)
 {
@@ -73,7 +73,7 @@ void bench::optimized_conv_bench(benchmark::State& state)
         lhs / conv_filter;
 }
 
-BENCHMARK(bench::optimized_conv_bench);
+BENCHMARK(bench::optimized_conv_bench)->Unit(benchmark::kMillisecond);
 
 int main(int argc, char *argv[])
 {
