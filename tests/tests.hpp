@@ -110,7 +110,7 @@ TEST(operation_testing, convol_test2)
     tensor l = {1, 2, 4, 4, l_data};
 
     std::vector<number_t> r_data = {};
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 8; i++)
         r_data.push_back(i);
 
     tensor r = {1, 2, 2, 2, r_data};
@@ -216,5 +216,5 @@ TEST(optimization_testing, transpose_test)
     EXPECT_EQ(t.transpose(), t_transposed);
 }
 #endif
-    
+
 #endif
