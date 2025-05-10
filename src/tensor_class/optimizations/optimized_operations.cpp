@@ -2,7 +2,6 @@
 #include <cstring>
 #include <immintrin.h>
 #include <x86intrin.h>
-#include <iostream>
 #include "tensor.hpp"
 
 tensor
@@ -212,14 +211,8 @@ tensor::simple_conv(const tensor& rhs) const
 }
 
 tensor
-tensor::operator /(const tensor& rhs) const
+tensor::im2col(const tensor& rhs) const
 {
-    if (size.C != rhs.size.C)
-        throw std::logic_error("tensor batch sizes doesn't match");
-
-    if (!rhs.is_square())
-        throw std::logic_error("filters are not square matrices for convolution");
-        
     std::vector<number_t> im2col_data = {};
         
     index_t Hf = rhs.size.H;
@@ -228,14 +221,36 @@ tensor::operator /(const tensor& rhs) const
     index_t Wo = size.W - rhs.size.W + 1;
 
     for (index_t i = 0; i < size.N; i++)
-        for (index_t j = 0; j < size.C; j++)
-            for (index_t l = 0; l < Ho; l++)
-                for (index_t k = 0; k < Wo; k++)
+        for (index_t l = 0; l < Ho; l++)
+            for (index_t k = 0; k < Wo; k++)
+                for (index_t j = 0; j < size.C; j++)
                     for (index_t ker_h = 0; ker_h < Hf; ker_h++)
                         for (index_t ker_w = 0; ker_w < Wf; ker_w++)
                             im2col_data.push_back((*this)(i, j, l + ker_h, k + ker_w)); 
 
-    tensor im2col_tensor{1, 1, size.N * Ho * Wo, size.C * Hf * Wf, im2col_data};
+    return {1, 1, size.N * Ho * Wo, size.C * Hf * Wf, im2col_data};
+}
 
-    return *this;
+tensor
+tensor::operator /(const tensor& rhs) const
+{
+    if (size.C != rhs.size.C)
+        throw std::logic_error("tensor batch sizes doesn't match");
+
+    if (!rhs.is_square())
+        throw std::logic_error("filters are not square matrices for convolution");
+        
+    tensor input_matrix = im2col(rhs);
+
+    std::vector<number_t> filter_data = {};
+    
+    for (index_t j = 0; j < size.N; j++)
+        for (index_t i = 0; i < rhs.data.size(); i++)
+            filter_data.push_back(rhs.data.at(i));
+    
+    tensor filter_matrix = {1, 1, size.N, rhs.data.size(), filter_data};
+
+    tensor mul_result = input_matrix.transposed_mult(filter_matrix);
+
+    return {size.N, rhs.size.N, size.H - rhs.size.H + 1, size.W - rhs.size.W + 1, mul_result.data};
 }
